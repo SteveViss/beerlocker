@@ -21,7 +21,7 @@ router.get('/', function(req, res) {
     });
 })
 
-app.use('/api', router);
+app.use('/api/v1', router);
 
 // route specific à l'API beer
 router.post('/beers', function(req, res) {
@@ -38,22 +38,88 @@ router.post('/beers', function(req, res) {
     });
 });
 
-router.get('/beers', function(req, res) {
-    models.beers.findAll().then(function(beers) {
-        if(beers)
-        res.status(200).json({"status":"Success","data": beers});
-    });
+router.get('/beers/off=:off?&lim=:lim?', function(req, res) {
+    var off = req.params.off || 0;
+    var lim = req.params.lim || 10;
+    models.beers.findAndCountAll({
+            limit: req.params.lim,
+            offset: req.params.off
+        })
+        .then(function(beers) {
+            if (beers.rows.length == 0) {
+                res.status(201).json({
+                    "status": "no content",
+                    "offset": off,
+                    "limit": lim,
+                    "totalOfRecords": beers.count,
+                    "data": beers.rows,
+                });
+            } else {
+                res.status(200).json({
+                    "status": "OK",
+                    "offset": off,
+                    "limit": lim,
+                    "totalOfRecords": beers.count,
+                    "data": beers.rows,
+                });
+            }
+        });
 });
 
 // get single beer
-router.get('/beers/:name', function(req, res) {
-  models.beer.find({
-    where: {
-      id: req.params.id
-    }
-  }).then(function(name) {
-    res.json(todo);
-  });
+router.get('/beers/id=:id([0-9]+)', function(req, res) {
+    models.beers.findAll({
+        where: {
+            id: req.params.id
+        }
+    }).then(function(beer) {
+        if (beer.length == 0) {
+            console.log(beer.length == 0);
+            res.status(202).json({
+                "status": "no content",
+                "data": beer
+            });
+        } else {
+            res.status(202).json({
+                "status": "OK",
+                "data": beer
+            });
+        }
+    });
+});
+
+
+// put one new quantity
+router.put('/beers/id=:id([0-9]+)&n=:n([0-9]+)', function(req, res) {
+    // Update quantity of one beer
+    models.beers.update({
+        quantity: req.params.n
+        },{
+            where: {
+                id: req.params.id
+            }
+        })
+        .then(function(beer) {
+            res.status(202).json({
+                "status": "updated",
+                "data": "Quantity of beer " + req.params.id + " successfully updated!"
+            })
+        });
+});
+
+router.delete('/beers/id=:id([0-9]+)', function(req, res) {
+    // Update quantity of one beer
+    models.beers.destroy({
+            where: {
+                id: req.params.id
+            }
+        })
+        .then(function(beer) {
+            res.status(202).json({
+                "status": "delete",
+                "data": "Beer " + req.params.id + " successfully deleted!"
+            })
+        });
 });
 
 app.listen(port);
