@@ -2,7 +2,7 @@ var express = require('express');
 var models = require('./models');
 var bodyParser = require('body-parser');
 
-// Setup 
+// Setup
 var app = express();
 var port = process.env.PORT || 3000;
 var router = express.Router();
@@ -38,9 +38,12 @@ router.post('/beers', function(req, res) {
     });
 });
 
-router.get('/beers/off=:off?&lim=:lim?', function(req, res) {
+router.get('/beers/lim=:lim?&off=:off?', function(req, res) {
     var off = req.params.off || 0;
     var lim = req.params.lim || 10;
+
+    console.log(req.params);
+
     models.beers.findAndCountAll({
             limit: req.params.lim,
             offset: req.params.off
@@ -67,7 +70,7 @@ router.get('/beers/off=:off?&lim=:lim?', function(req, res) {
 });
 
 // get single beer
-router.get('/beers/id=:id([0-9]+)', function(req, res) {
+router.get('/beer/:id([0-9]+)', function(req, res) {
     models.beers.findAll({
         where: {
             id: req.params.id
@@ -90,7 +93,7 @@ router.get('/beers/id=:id([0-9]+)', function(req, res) {
 
 
 // put one new quantity
-router.put('/beers/id=:id([0-9]+)&n=:n([0-9]+)', function(req, res) {
+router.put('/beer/id=:id([0-9]+)&n=:n([0-9]+)', function(req, res) {
     // Update quantity of one beer
     models.beers.update({
         quantity: req.params.n
@@ -107,7 +110,7 @@ router.put('/beers/id=:id([0-9]+)&n=:n([0-9]+)', function(req, res) {
         });
 });
 
-router.delete('/beers/id=:id([0-9]+)', function(req, res) {
+router.delete('/beer/id=:id([0-9]+)', function(req, res) {
     // Update quantity of one beer
     models.beers.destroy({
             where: {

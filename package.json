@@ -4,7 +4,7 @@
   "description": "Tuto - http://scottksmith.com/blog/2014/05/02/building-restful-apis-with-node/",
   "main": "server.js",
   "scripts": {
-    "deploy": "sequelize model:create --name beer --attributes name:string,type:string,quantity:integer",
+    "deploy": "sequelize model:create --force --name beers --attributes beer:string,type:string,quantity:integer",
     "migrate": "sequelize db:migrate"
   },
   "repository": {
@@ -16,8 +16,11 @@
   "dependencies": {
     "body-parser": "^1.15.2",
     "express": "^4.14.0",
+    "graceful-fs": "^4.0.0",
     "pg": "^6.0.1",
-    "sequelize": "^3.23.4"
+    "pg-hstore": "^2.3.2",
+    "sequelize": "^3.23.4",
+    "sequelize-cli": "^2.4.0"
   },
   "devDependencies": {
     "sequelize-cli": "^2.4.0"
