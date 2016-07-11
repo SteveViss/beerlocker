@@ -1,11 +1,23 @@
 var express = require('express');
-var models = require('./models');
+var db = require('./models');
 var bodyParser = require('body-parser');
 
 // Setup
 var app = express();
 var port = process.env.PORT || 3000;
 var router = express.Router();
+
+// Sync database with new models
+db.sequelize
+  .authenticate()
+  .then(function(err) {
+    console.log('Connection to PostgreSQL has been established successfully.');
+  })
+  .catch(function (err) {
+    console.log('Unable to connect to the database:', err);
+  });
+
+db.sequelize.sync();
 
 // Parser
 app.use(bodyParser.json()); // for parsing application/json
@@ -30,7 +42,7 @@ router.post('/beers', function(req, res) {
         type: req.body.type,
         quantity: req.body.quantity
     }
-    models.beers.create(newBeer).then(function() {
+    db.beers.create(newBeer).then(function() {
         res.status(201).json({
             "status": "Created",
             "data": newBeer
@@ -44,7 +56,7 @@ router.get('/beers/lim=:lim?&off=:off?', function(req, res) {
 
     console.log(req.params);
 
-    models.beers.findAndCountAll({
+    db.beers.findAndCountAll({
             limit: req.params.lim,
             offset: req.params.off
         })
@@ -71,7 +83,7 @@ router.get('/beers/lim=:lim?&off=:off?', function(req, res) {
 
 // get single beer
 router.get('/beer/:id([0-9]+)', function(req, res) {
-    models.beers.findAll({
+    db.beers.findAll({
         where: {
             id: req.params.id
         }
@@ -95,7 +107,7 @@ router.get('/beer/:id([0-9]+)', function(req, res) {
 // put one new quantity
 router.put('/beer/id=:id([0-9]+)&n=:n([0-9]+)', function(req, res) {
     // Update quantity of one beer
-    models.beers.update({
+    db.beers.update({
         quantity: req.params.n
         },{
             where: {
@@ -112,7 +124,7 @@ router.put('/beer/id=:id([0-9]+)&n=:n([0-9]+)', function(req, res) {
 
 router.delete('/beer/id=:id([0-9]+)', function(req, res) {
     // Update quantity of one beer
-    models.beers.destroy({
+    db.beers.destroy({
             where: {
                 id: req.params.id
             }
